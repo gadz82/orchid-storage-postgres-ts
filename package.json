@@ -30,7 +30,7 @@
     "node": ">=20.0.0"
   },
   "dependencies": {
-    "@orchid-ai/orchid": "*",
+    "@orchid-ai/orchid": "file:../orchid-ts",
     "postgres": "^3.4.0"
   },
   "devDependencies": {
