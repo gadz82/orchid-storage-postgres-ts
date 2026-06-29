@@ -1,13 +1,31 @@
 // PostgreSQL MCP client registration store
+import postgres from 'postgres';
 import type { Sql } from 'postgres';
 
 import { OrchidMCPClientRegistration } from '@orchid-ai/orchid/core';
 
-export class OrchidPostgresMCPClientRegistrationStore {
-  constructor(private sql: Sql) {}
+import { runMigrations } from './migrations/v001InitialSchema.js';
 
-  async initDb(): Promise<void> {}
-  async close(): Promise<void> {}
+export class OrchidPostgresMCPClientRegistrationStore {
+  private sql: Sql;
+
+  constructor(sql: Sql);
+  constructor(opts: { dsn: string });
+  constructor(opts: Sql | { dsn: string }) {
+    if (opts && typeof opts === 'object' && 'dsn' in opts && typeof opts.dsn === 'string') {
+      this.sql = postgres(opts.dsn);
+    } else {
+      this.sql = opts as Sql;
+    }
+  }
+
+  async initDb(): Promise<void> {
+    await runMigrations(this.sql);
+  }
+
+  async close(): Promise<void> {
+    await this.sql.end();
+  }
 
   async get(serverName: string): Promise<OrchidMCPClientRegistration | null> {
     const rows = await this.sql<

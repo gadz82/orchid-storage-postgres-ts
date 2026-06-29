@@ -1,16 +1,28 @@
 // PostgreSQL chat storage — extends OrchidChatStorage ABC
+import postgres from 'postgres';
 import type { Sql } from 'postgres';
 import { randomUUID } from 'node:crypto';
 
 import { OrchidChatStorage, type ChatSession, type Message } from '@orchid-ai/orchid/persistence';
 
+import { runMigrations } from './migrations/v001InitialSchema.js';
+
 export class OrchidPostgresChatStorage extends OrchidChatStorage {
-  constructor(private sql: Sql) {
+  private sql: Sql;
+
+  constructor(sql: Sql);
+  constructor(opts: { dsn: string });
+  constructor(opts: Sql | { dsn: string }) {
     super();
+    if (opts && typeof opts === 'object' && 'dsn' in opts && typeof opts.dsn === 'string') {
+      this.sql = postgres(opts.dsn);
+    } else {
+      this.sql = opts as Sql;
+    }
   }
 
   async initDb(): Promise<void> {
-    // Migrations run separately
+    await runMigrations(this.sql);
   }
 
   async close(): Promise<void> {
