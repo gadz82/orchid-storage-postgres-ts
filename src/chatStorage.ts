@@ -7,6 +7,7 @@ import { OrchidChatStorage, type ChatSession, type Message } from '@orchid-ai/or
 
 import { runMigrations } from './migrations/v001InitialSchema.js';
 
+// ORCHID-MEM: 01a1a0c1-deab-70fa-bb1c-300610914a72 — TypeScript PostgreSQL chat storage
 export class OrchidPostgresChatStorage extends OrchidChatStorage {
   private sql: Sql;
 
